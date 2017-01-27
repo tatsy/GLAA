@@ -1,0 +1,12 @@
+#ifdef _MSC_VER
+#pragma once
+#endif
+
+#ifndef _DIRECTORIES_H_
+#define _DIRECTORIES_H_
+
+static const char* OUTPUT_DIRECTORY = "@CMAKE_SOURCE_DIR@/output/";
+static const char* DATA_DIRECTORY   = "@CMAKE_SOURCE_DIR@/data/";
+static const char* SHADER_DIRECTORY = "@CMAKE_CURRENT_LIST_DIR@/shaders/";
+
+#endif  // _DIRECTORIES_H_
