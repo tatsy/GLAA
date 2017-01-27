@@ -6,10 +6,10 @@ OpenGL Antialiasing
 ## Results
 
 #### No AA
-<img src="./results/noaa.jpg" width="256"/>
+<img src="./results/noaa.jpg" width="512"/>
 
 #### SSAA
-<img src="./results/ssaa.jpg" width="256"/>
+<img src="./results/ssaa.jpg" width="512"/>
 
 #### MSAA
-<img src="./results/msaa.jpg" width="256"/>
+<img src="./results/msaa.jpg" width="512"/>
