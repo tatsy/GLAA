@@ -221,10 +221,11 @@ void OpenGLViewer::updateFboSize() {
     QSize bufferSize(width() * aaMethod.subsample, height() * aaMethod.subsample);
     gbufFbo = std::make_unique<QOpenGLFramebufferObject>(
         bufferSize, QOpenGLFramebufferObject::Attachment::Depth,
-        QOpenGLTexture::Target2D, QOpenGLTexture::RGBA32F);
-    gbufFbo->addColorAttachment(bufferSize, QOpenGLTexture::RGBA32F);
-    gbufFbo->addColorAttachment(bufferSize, QOpenGLTexture::RGBA32F);
-    gbufFbo->addColorAttachment(bufferSize, QOpenGLTexture::RGBA32F);
+        QOpenGLTexture::Target2D, QOpenGLTexture::RGBA16F);
+    gbufFbo->addColorAttachment(bufferSize, QOpenGLTexture::RGBA16F);
+    gbufFbo->addColorAttachment(bufferSize, QOpenGLTexture::RGBA8_SNorm);
+    gbufFbo->addColorAttachment(bufferSize, QOpenGLTexture::RGBA8_SNorm);
+    gbufFbo->addColorAttachment(bufferSize, QOpenGLTexture::R32F);
 }
 
 void OpenGLViewer::mousePressEvent(QMouseEvent* ev) {
@@ -273,9 +274,10 @@ void OpenGLViewer::drawGbuffer() {
     gbufFbo->bind();
 
     GLenum bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
-                      GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+                      GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
+                      GL_COLOR_ATTACHMENT4 };
     auto func = QOpenGLContext::currentContext()->extraFunctions();
-    func->glDrawBuffers(4, bufs);
+    func->glDrawBuffers(5, bufs);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -299,11 +301,12 @@ void OpenGLViewer::drawSceneCS() {
     csShader->setUniformValue("u_subsample", aaMethod.subsample);
 
     auto func = QOpenGLContext::currentContext()->extraFunctions();
-    func->glBindImageTexture(0, gbufFbo->textures()[0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    func->glBindImageTexture(1, gbufFbo->textures()[1], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    func->glBindImageTexture(2, gbufFbo->textures()[2], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    func->glBindImageTexture(3, gbufFbo->textures()[3], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    func->glBindImageTexture(4, renderTargetCS->textureId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8_SNORM);
+    func->glBindImageTexture(0, gbufFbo->textures()[0], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+    func->glBindImageTexture(1, gbufFbo->textures()[1], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+    func->glBindImageTexture(2, gbufFbo->textures()[2], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8_SNORM);
+    func->glBindImageTexture(3, gbufFbo->textures()[3], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8_SNORM);
+    func->glBindImageTexture(4, gbufFbo->textures()[4], 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+    func->glBindImageTexture(5, renderTargetCS->textureId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8_SNORM);
 
     const int localSize = 32;
     func->glDispatchCompute((width() + localSize - 1) / localSize, (height() + localSize - 1) / localSize, 1);

@@ -9,6 +9,7 @@ layout(location = 0) out vec4 out_position;
 layout(location = 1) out vec4 out_normal;
 layout(location = 2) out vec4 out_diffuse;
 layout(location = 3) out vec4 out_specular;
+layout(location = 4) out vec4 out_shininess;
 
 uniform vec3 u_diffColor;
 uniform vec3 u_specColor;
@@ -37,5 +38,6 @@ void main(void) {
     } else {
         out_specular.rgb = u_specColor;
     }
-    out_specular.a = u_shininess;
+
+    out_shininess = vec4(u_shininess, 1.0, 1.0, 1.0);
 }

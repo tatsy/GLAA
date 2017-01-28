@@ -10,12 +10,12 @@ uniform vec3 u_lightPos;
 uniform int u_aaType;
 uniform int u_subsample;
 
-layout(rgba32f, binding = 0) readonly uniform image2D positionMap;
-layout(rgba32f, binding = 1) readonly uniform image2D normalMap;
-layout(rgba32f, binding = 2) readonly uniform image2D diffuseMap;
-layout(rgba32f, binding = 3) readonly uniform image2D specularMap;
-
-layout(rgba8_snorm, binding = 4) writeonly uniform image2D renderTarget;
+layout(rgba16f, binding = 0) readonly uniform image2D positionMap;
+layout(rgba16f, binding = 1) readonly uniform image2D normalMap;
+layout(rgba8_snorm, binding = 2) readonly uniform image2D diffuseMap;
+layout(rgba8_snorm, binding = 3) readonly uniform image2D specularMap;
+layout(r32f, binding = 4) readonly uniform image2D shininessMap;
+layout(rgba8_snorm, binding = 5) writeonly uniform image2D renderTarget;
 
 layout(local_size_x = 32, local_size_y = 32) in;
 
@@ -25,7 +25,8 @@ vec3 shading(ivec2 pixelPos) {
     vec3 position = imageLoad(positionMap, pixelPos).xyz;
     vec3 normal = imageLoad(normalMap, pixelPos).xyz;
     vec3 diffuse = imageLoad(diffuseMap, pixelPos).xyz;
-    vec4 specular = imageLoad(specularMap, pixelPos);
+    vec3 specular = imageLoad(specularMap, pixelPos).xyz;
+    float shininess = imageLoad(shininessMap, pixelPos).x;
 
     vec3 posView = (u_mvMat * vec4(position, 1.0)).xyz;
     vec3 normView = (u_normMat * vec4(normal, 0.0)).xyz;
@@ -39,7 +40,7 @@ vec3 shading(ivec2 pixelPos) {
     float ndotl = max(0.0, dot(N, L));
     float ndoth = max(0.0, dot(N, H));
 
-    vec3 rgb = diffuse * ndotl + specular.rgb * pow(ndoth + EPS, specular.a);
+    vec3 rgb = diffuse * ndotl + specular.rgb * pow(ndoth + EPS, shininess);
     return rgb;
 }
 
